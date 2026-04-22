@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏇 The Grand Stakes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Oswald:wght@300;400;600&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#c9a84c;--gold-l:#e8c96a;--cream:#f5ead6;--dark:#1a1208;
+  --red:#c0392b;--green2:#27ae60;--dirt:#c4935a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:var(--cream);font-family:'Oswald',sans-serif;min-height:100vh;overflow-x:hidden;
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.01) 0,rgba(255,255,255,.01) 1px,transparent 1px,transparent 50%),
+  repeating-linear-gradient(-45deg,rgba(255,255,255,.01) 0,rgba(255,255,255,.01) 1px,transparent 1px,transparent 50%);background-size:20px 20px;}
+header{text-align:center;padding:22px 16px 10px;background:linear-gradient(180deg,#0a0804 0%,transparent 100%);}
+header::after{content:'✦ ✦ ✦';display:block;color:var(--gold);font-size:11px;letter-spacing:16px;margin-top:6px;opacity:.6;}
+.title{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,58px);font-weight:900;color:var(--gold);
+  text-shadow:0 2px 20px rgba(201,168,76,.4);letter-spacing:4px;line-height:1;}
+.subtitle{font-family:'Special Elite',cursive;font-size:13px;color:rgba(245,234,214,.45);letter-spacing:6px;margin-top:4px;}
+.phase{display:none;}.phase.active{display:block;}
+.wrap{max-width:800px;margin:0 auto;padding:20px 14px;}
+.sec-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--gold);
+  border-bottom:1px solid rgba(201,168,76,.3);padding-bottom:7px;margin-bottom:14px;letter-spacing:2px;}
+input[type=text],input[type=number],select{
+  background:rgba(245,234,214,.07);border:1px solid rgba(201,168,76,.3);
+  color:var(--cream);font-family:'Oswald',sans-serif;font-size:15px;
+  padding:8px 12px;border-radius:4px;outline:none;transition:border-color .2s;}
+input:focus,select:focus{border-color:var(--gold);}
+input::placeholder{color:rgba(245,234,214,.3);}
+select option{background:#2a1f0a;color:var(--cream);}
+.btn{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:2px;border:none;
+  cursor:pointer;border-radius:4px;transition:all .2s;text-transform:uppercase;}
+.btn-gold{background:linear-gradient(135deg,#c9a84c,#e8c96a,#c9a84c);color:var(--dark);padding:10px 22px;font-size:13px;}
+.btn-gold:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-gold:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-outline{background:transparent;border:1px solid rgba(201,168,76,.5);color:var(--gold);padding:7px 16px;font-size:12px;}
+.btn-outline:hover{background:rgba(201,168,76,.1);}
+.btn-red{background:var(--red);color:#fff;padding:10px 26px;font-size:14px;}
+.btn-red:hover{background:#e74c3c;transform:translateY(-1px);}
+.btn-sm{padding:5px 10px;font-size:11px;}
+/* horse setup */
+.horse-entry{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+.horse-num{width:32px;height:32px;background:var(--gold);color:var(--dark);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
+/* odds board */
+.odds-board{background:rgba(0,0,0,.35);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:12px;margin-bottom:16px;}
+.odds-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.odds-row:last-child{border-bottom:none;}
+.odds-num{width:26px;height:26px;background:var(--gold);color:var(--dark);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;}
+.odds-name{flex:1;font-size:14px;}
+.odds-val{font-size:16px;font-weight:700;min-width:50px;text-align:right;}
+.c-fav{color:#ffd700;}.c-mid{color:#87ceeb;}.c-long{color:#e74c3c;}
+.odds-badge{font-size:10px;letter-spacing:1px;padding:2px 7px;border-radius:3px;}
+.fav-badge{background:rgba(255,215,0,.12);color:#ffd700;}
+.long-badge{background:rgba(231,76,60,.12);color:#e74c3c;}
+/* betting */
+.bettor-card{background:rgba(245,234,214,.04);border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:14px;margin-bottom:14px;}
+.bettor-hdr{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
+.lbl{font-size:10px;letter-spacing:1px;color:rgba(245,234,214,.4);min-width:70px;}
+.type-grid{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.type-btn{padding:5px 11px;border-radius:4px;font-size:11px;letter-spacing:1px;cursor:pointer;
+  border:1px solid rgba(201,168,76,.3);background:rgba(245,234,214,.04);color:rgba(245,234,214,.65);
+  font-family:'Oswald',sans-serif;font-weight:600;transition:all .15s;}
+.type-btn:hover,.type-btn.active{border-color:var(--gold);background:rgba(201,168,76,.15);color:var(--gold);}
+.picks-row{display:flex;flex-wrap:wrap;gap:5px;}
+.horse-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 9px;border-radius:16px;
+  font-size:12px;cursor:pointer;border:1px solid rgba(201,168,76,.2);
+  background:rgba(245,234,214,.04);transition:all .15s;white-space:nowrap;}
+.horse-chip:hover{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.08);}
+.chip-1{border-color:#ffd700!important;background:rgba(255,215,0,.12)!important;}
+.chip-2{border-color:#87ceeb!important;background:rgba(135,206,235,.1)!important;}
+.chip-3{border-color:#2ecc71!important;background:rgba(46,204,113,.1)!important;}
+.chip-4{border-color:#e91e63!important;background:rgba(233,30,99,.1)!important;}
+.bet-info{font-family:'Special Elite',cursive;font-size:11px;color:rgba(245,234,214,.38);
+  margin-top:6px;padding:6px 10px;background:rgba(0,0,0,.2);border-radius:4px;line-height:1.6;}
+.payout-prev{font-size:13px;color:var(--gold);font-weight:700;margin-top:5px;}
+/* info box */
+.info-box{background:rgba(0,0,0,.3);border:1px solid rgba(201,168,76,.13);border-radius:6px;
+  padding:10px 14px;margin-bottom:16px;font-family:'Special Elite',cursive;font-size:11px;
+  color:rgba(245,234,214,.45);line-height:1.8;}
+.info-box b{color:var(--gold);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.5px;}
+/* TRACK */
+#race-phase{padding:0;}
+.track-wrapper{position:relative;width:100%;overflow:hidden;}
+.sky-bg{background:linear-gradient(180deg,#1a3a5c 0%,#2d6a9f 40%,#87ceeb 100%);height:88px;position:relative;overflow:hidden;}
+.cloud{position:absolute;background:rgba(255,255,255,.7);border-radius:50px;animation:cloudMove linear infinite;}
+@keyframes cloudMove{from{transform:translateX(110%);}to{transform:translateX(-200px);}}
+.grandstand{height:42px;background:linear-gradient(180deg,#8b6914,#6b4f10);position:relative;}
+.grandstand::before{content:'';position:absolute;top:0;left:0;right:0;height:12px;
+  background:repeating-linear-gradient(90deg,#a07820 0,#a07820 16px,#6b4f10 16px,#6b4f10 20px);}
+.track-outer{background:#5a8c3a;padding:6px 0;}
+.track-inner{background:var(--dirt);position:relative;overflow:hidden;}
+.lane{height:44px;border-bottom:1px dashed rgba(255,255,255,.1);position:relative;display:flex;align-items:center;}
+.lane:last-child{border-bottom:none;}
+.finish-line{position:absolute;right:74px;top:0;bottom:0;width:16px;
+  background:repeating-linear-gradient(180deg,#000 0,#000 6px,#fff 6px,#fff 12px);z-index:5;opacity:.85;}
+.finish-lbl{position:absolute;right:76px;top:-18px;font-size:10px;font-weight:700;color:#fff;
+  letter-spacing:1px;background:#c0392b;padding:2px 5px;border-radius:2px;z-index:6;}
+.rail{height:5px;background:linear-gradient(90deg,var(--gold),#fff8dc,var(--gold));box-shadow:0 2px 6px rgba(0,0,0,.4);}
+.horse-runner{position:absolute;left:0;font-size:25px;line-height:1;z-index:4;
+  filter:drop-shadow(1px 1px 2px rgba(0,0,0,.5));white-space:nowrap;display:flex;align-items:center;gap:3px;}
+.hlbl{font-family:'Oswald',sans-serif;font-size:10px;color:#fff;background:rgba(0,0,0,.6);padding:1px 4px;border-radius:3px;white-space:nowrap;}
+.energy-bar{position:absolute;bottom:2px;height:3px;border-radius:2px;opacity:.7;}
+.hud{background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(10,8,4,.9));padding:9px 16px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;border-top:2px solid var(--gold);}
+.hud-item{text-align:center;}
+.hud-lbl{font-size:9px;letter-spacing:2px;color:rgba(245,234,214,.35);}
+.hud-val{font-size:19px;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif;}
+.commentary{background:rgba(0,0,0,.7);padding:9px 16px;font-family:'Special Elite',cursive;
+  font-size:14px;color:var(--cream);text-align:center;min-height:38px;border-bottom:1px solid rgba(201,168,76,.2);}
+.start-overlay{position:absolute;inset:0;background:rgba(0,0,0,.75);
+  display:flex;align-items:center;justify-content:center;z-index:20;flex-direction:column;gap:8px;}
+.cd-num{font-family:'Playfair Display',serif;font-size:88px;font-weight:900;
+  color:var(--gold);text-shadow:0 0 40px rgba(201,168,76,.7);animation:pulse 1s ease-out;}
+.cd-txt{font-family:'Special Elite',cursive;font-size:16px;color:#fff;letter-spacing:4px;}
+@keyframes pulse{from{transform:scale(1.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+/* results */
+.results-wrap{max-width:680px;margin:0 auto;padding:26px 14px;}
+.winner-banner{background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));
+  border:2px solid var(--gold);border-radius:8px;padding:20px;margin-bottom:18px;text-align:center;}
+.winner-banner::before{content:'🏆';font-size:50px;display:block;margin-bottom:5px;animation:float 2s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.winner-name{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:var(--gold);}
+.winner-sub{font-size:12px;color:rgba(245,234,214,.4);letter-spacing:4px;margin-top:3px;}
+.podium-list{list-style:none;margin-bottom:16px;}
+.podium-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(245,234,214,.06);font-size:14px;}
+.place-medal{font-size:18px;width:26px;text-align:center;}
+.place-horse{flex:1;}
+.place-odds{font-size:11px;min-width:35px;text-align:right;}
+.place-gap{color:rgba(245,234,214,.38);font-size:11px;font-family:'Special Elite',cursive;min-width:60px;text-align:right;}
+.bets-results{background:rgba(245,234,214,.04);border-radius:6px;padding:14px;margin-bottom:18px;}
+.bet-result-row{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;gap:8px;}
+.bet-result-row:last-child{border-bottom:none;}
+.bet-win{color:#2ecc71;font-weight:700;white-space:nowrap;}
+.bet-lose{color:#e74c3c;white-space:nowrap;}
+.bet-det{font-size:11px;color:rgba(245,234,214,.38);margin-top:2px;font-family:'Special Elite',cursive;}
+.confetti-piece{position:fixed;width:10px;height:10px;top:-10px;animation:confettiFall linear forwards;border-radius:2px;z-index:100;}
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="title">THE GRAND STAKES</div>
+  <div class="subtitle">Est. MMXXIV · Premium Horse Racing</div>
+</header>
+
+<!-- SETUP -->
+<div class="phase active" id="setup-phase">
+<div class="wrap">
+  <div class="sec-title">🏇 Register Horses</div>
+  <div id="horse-list"></div>
+  <div style="display:flex;gap:8px;margin:12px 0 20px;align-items:center;">
+    <button class="btn btn-outline" onclick="addHorse()">+ Add Horse</button>
+    <span id="horse-count-lbl" style="font-size:12px;color:rgba(245,234,214,.35);"></span>
+  </div>
+  <button class="btn btn-gold" onclick="goToOdds()" id="odds-btn" disabled>Set Odds &amp; Betting →</button>
+</div>
+</div>
+
+<!-- ODDS -->
+<div class="phase" id="odds-phase">
+<div class="wrap">
+  <div class="sec-title">📊 Morning Line Odds</div>
+  <div class="info-box">
+    Odds are auto-generated based on a random handicap — but you can adjust them freely.<br>
+    <b>Low odds</b> (2/1, 3/1) = Favorite — more likely to win but pays less.<br>
+    <b>High odds</b> (20/1, 50/1) = Longshot — less likely but huge payout if they win.<br>
+    The race physics are still <b>random</b> — favorites don't always win!
+  </div>
+  <div id="odds-board-setup"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="btn btn-outline" onclick="randomizeOdds()">🎲 Re-Roll Odds</button>
+    <button class="btn btn-gold" onclick="goToBetting()">Proceed to Betting →</button>
+  </div>
+</div>
+</div>
+
+<!-- BETTING -->
+<div class="phase" id="betting-phase">
+<div class="wrap">
+  <div class="sec-title">💰 Place Your Wagers</div>
+  <div class="odds-board" id="odds-ref"></div>
+  <div class="info-box" id="bet-types-info"></div>
+  <div id="bettors-container"></div>
+  <div style="display:flex;gap:8px;margin-bottom:18px;">
+    <button class="btn btn-outline" onclick="addBettor()">+ Add Bettor</button>
+  </div>
+  <button class="btn btn-red" onclick="startRace()" style="width:100%;padding:13px;font-size:16px;">🚩 POST TIME — START THE RACE</button>
+</div>
+</div>
+
+<!-- RACE -->
+<div class="phase" id="race-phase">
+  <div class="commentary" id="commentary">🎙️ Welcome to the Grand Stakes! The horses are loading into the gate...</div>
+  <div class="hud">
+    <div class="hud-item"><div class="hud-lbl">STATUS</div><div class="hud-val" id="hud-status">READY</div></div>
+    <div class="hud-item"><div class="hud-lbl">TIME</div><div class="hud-val" id="hud-time">0.0s</div></div>
+    <div class="hud-item"><div class="hud-lbl">1ST</div><div class="hud-val" id="hud-first">—</div></div>
+    <div class="hud-item"><div class="hud-lbl">2ND</div><div class="hud-val" id="hud-second">—</div></div>
+    <div class="hud-item"><div class="hud-lbl">3RD</div><div class="hud-val" id="hud-third">—</div></div>
+  </div>
+  <div class="track-wrapper" id="track-wrapper">
+    <div class="sky-bg">
+      <div class="cloud" style="width:110px;height:26px;top:16px;animation-duration:22s;"></div>
+      <div class="cloud" style="width:75px;height:20px;top:46px;animation-duration:30s;animation-delay:-10s;"></div>
+      <div class="cloud" style="width:140px;height:25px;top:7px;animation-duration:18s;animation-delay:-5s;"></div>
+    </div>
+    <div class="grandstand"></div>
+    <div class="track-outer">
+      <div class="rail"></div>
+      <div class="track-inner" id="track-inner">
+        <div class="finish-lbl">FINISH</div>
+        <div class="finish-line"></div>
+      </div>
+      <div class="rail"></div>
+    </div>
+    <div class="start-overlay" id="start-overlay">
+      <div class="cd-txt">LOADING GATE...</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="phase" id="results-phase">
+<div class="results-wrap">
+  <div class="sec-title" style="text-align:center;">🏁 Official Results</div>
+  <div class="winner-banner">
+    <div class="winner-name" id="winner-name"></div>
+    <div class="winner-sub">WINNER · 1ST PLACE</div>
+  </div>
+  <ul class="podium-list" id="podium-list"></ul>
+  <div class="bets-results" id="bets-results"></div>
+  <button class="btn btn-gold" onclick="resetGame()" style="width:100%;padding:13px;">🔄 New Race</button>
+</div>
+</div>
+
+<script>
+// =========================================================
+// STATE
+// =========================================================
+let horses = [];      // [{name}]
+let horseOdds = [];   // fractional numerator per horse (e.g. 5 => 5/1)
+let bettors = [];     // [{name, betType, picks[], stake}]
+let racePositions = [];
+let raceFinished = [];
+let raceAnimFrame = null;
+let raceStartTime = null;
+const RACE_DURATION = 30000;
+
+// =========================================================
+// BET TYPE DEFINITIONS
+// =========================================================
+const BET_TYPES = {
+  WIN:        {label:'Win',        picks:1, desc:'Your horse must finish 1st.'},
+  PLACE:      {label:'Place',      picks:1, desc:'Your horse must finish 1st or 2nd.'},
+  SHOW:       {label:'Show',       picks:1, desc:'Your horse must finish 1st, 2nd, or 3rd.'},
+  EXACTA:     {label:'Exacta',     picks:2, desc:'Pick 1st AND 2nd in exact order. (Pick order = finish order)'},
+  QUINELLA:   {label:'Quinella',   picks:2, desc:'Pick 1st AND 2nd in any order.'},
+  TRIFECTA:   {label:'Trifecta',   picks:3, desc:'Pick 1st, 2nd AND 3rd in exact order.'},
+  SUPERFECTA: {label:'Superfecta', picks:4, desc:'Pick 1st through 4th in exact order. Huge payout!'},
+  DAILY_DOUBLE:{label:'Daily Double',picks:2,desc:'Both your picks must land in the top 2 (any order). Big combo odds.'},
+};
+
+// =========================================================
+// ODDS SYSTEM
+// =========================================================
+const ODD_OPTIONS = [1,2,3,4,5,6,8,10,12,15,20,30,50,99];
+
+function generateOdds(n) {
+  // At least one fav at 2/1 or 3/1, spread the rest with weighted randomness
+  let pool = [];
+  pool.push(ODD_OPTIONS[1 + Math.floor(Math.random()*2)]); // 2 or 3
+  if(n > 4) pool.push(ODD_OPTIONS[3 + Math.floor(Math.random()*2)]); // 4 or 5
+  while(pool.length < n) {
+    const r = Math.random()*Math.random(); // skew toward lower indices
+    const idx = Math.min(ODD_OPTIONS.length-1, 2 + Math.floor(r * 10));
+    pool.push(ODD_OPTIONS[idx]);
+  }
+  // shuffle
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  return pool.slice(0,n);
+}
+
+function randomizeOdds() { horseOdds = generateOdds(horses.length); renderOddsSetup(); }
+
+function oddsClass(o){ return o<=3?'c-fav':o<=9?'c-mid':'c-long'; }
+function oddsDisplay(o){ return o+'/1'; }
+function oddsTag(o){
+  if(o<=3) return '<span class="odds-badge fav-badge">FAVORITE</span>';
+  if(o>=20) return '<span class="odds-badge long-badge">LONGSHOT</span>';
+  return '';
+}
+
+// Payout calculation (returns total return including stake)
+function calcPayout(type, picks, stake) {
+  if(!picks||picks.length===0) return 0;
+  const o = i => horseOdds[picks[i]] !== undefined ? horseOdds[picks[i]] : 1;
+  switch(type){
+    case 'WIN':         return +(stake*(o(0)+1)).toFixed(2);
+    case 'PLACE':       return +(stake*(Math.max(1,Math.round(o(0)*0.45))+1)).toFixed(2);
+    case 'SHOW':        return +(stake*(Math.max(1,Math.round(o(0)*0.22))+1)).toFixed(2);
+    case 'EXACTA':      return +(stake*(o(0)+1)*(o(1)+1)*0.75).toFixed(2);
+    case 'QUINELLA':    return +(stake*(o(0)+1)*(o(1)+1)*0.55).toFixed(2);
+    case 'TRIFECTA':    return +(stake*(o(0)+1)*(o(1)+1)*(o(2)+1)*0.50).toFixed(2);
+    case 'SUPERFECTA':  return +(stake*(o(0)+1)*(o(1)+1)*(o(2)+1)*(o(3)+1)*0.35).toFixed(2);
+    case 'DAILY_DOUBLE':return +(stake*(o(0)+1)*(o(1)+1)*0.60).toFixed(2);
+    default: return +(stake*(o(0)+1)).toFixed(2);
+  }
+}
+
+function checkWin(type, picks, finishOrder) {
+  if(!picks||picks.length===0) return false;
+  const fo = finishOrder;
+  switch(type){
+    case 'WIN':         return fo[0]===picks[0];
+    case 'PLACE':       return fo.slice(0,2).includes(picks[0]);
+    case 'SHOW':        return fo.slice(0,3).includes(picks[0]);
+    case 'EXACTA':      return fo[0]===picks[0]&&fo[1]===picks[1];
+    case 'QUINELLA':    return fo.slice(0,2).includes(picks[0])&&fo.slice(0,2).includes(picks[1]);
+    case 'TRIFECTA':    return fo[0]===picks[0]&&fo[1]===picks[1]&&fo[2]===picks[2];
+    case 'SUPERFECTA':  return fo[0]===picks[0]&&fo[1]===picks[1]&&fo[2]===picks[2]&&fo[3]===picks[3];
+    case 'DAILY_DOUBLE':return fo.slice(0,2).includes(picks[0])&&fo.slice(0,2).includes(picks[1]);
+    default: return false;
+  }
+}
+
+// =========================================================
+// SETUP PHASE
+// =========================================================
+function updateSetup(){
+  const valid=horses.filter(h=>h.name.trim().length>0);
+  document.getElementById('horse-count-lbl').textContent=`${horses.length} horse${horses.length!==1?'s':''} registered`;
+  document.getElementById('odds-btn').disabled=valid.length<2;
+}
+function addHorse(){
+  if(horses.length>=10)return;
+  horses.push({name:''});renderHorseList();
+}
+function removeHorse(i){horses.splice(i,1);renderHorseList();}
+function renderHorseList(){
+  const el=document.getElementById('horse-list');el.innerHTML='';
+  horses.forEach((h,i)=>{
+    const d=document.createElement('div');d.className='horse-entry';
+    d.innerHTML=`<div class="horse-num">${i+1}</div>
+      <input type="text" placeholder="Horse name..." value="${h.name}" maxlength="20"
+        oninput="horses[${i}].name=this.value;updateSetup();" style="flex:1;" />
+      <button class="btn btn-outline btn-sm" onclick="removeHorse(${i})">✕</button>`;
+    el.appendChild(d);
+  });
+  updateSetup();
+}
+['Thunder Strike','Silver Wind','Golden Arrow','Night Blaze','Iron Duke'].forEach(n=>horses.push({name:n}));
+renderHorseList();
+
+// =========================================================
+// ODDS PHASE
+// =========================================================
+function goToOdds(){
+  horses=horses.map((h,i)=>({name:h.name.trim()||`Horse ${i+1}`}));
+  renderHorseList();
+  horseOdds=generateOdds(horses.length);
+  document.getElementById('setup-phase').classList.remove('active');
+  document.getElementById('odds-phase').classList.add('active');
+  renderOddsSetup();
+}
+function renderOddsSetup(){
+  const sorted=[...horses.map((h,i)=>({i,h,o:horseOdds[i]}))].sort((a,b)=>a.o-b.o);
+  document.getElementById('odds-board-setup').innerHTML=`<div class="odds-board">`+
+    sorted.map((s,rank)=>`
+      <div class="odds-row">
+        <span style="font-size:11px;color:rgba(245,234,214,.35);width:18px;">${rank+1}</span>
+        <div class="odds-num">${s.i+1}</div>
+        <div class="odds-name">${s.h.name}</div>
+        ${oddsTag(s.o)}
+        <select onchange="horseOdds[${s.i}]=+this.value;renderOddsSetup();" style="width:75px;font-size:13px;">
+          ${ODD_OPTIONS.map(v=>`<option value="${v}" ${v===s.o?'selected':''}>${v}/1</option>`).join('')}
+        </select>
+        <div class="odds-val ${oddsClass(s.o)}">${oddsDisplay(s.o)}</div>
+      </div>`).join('')+`</div>`;
+}
+
+// =========================================================
+// BETTING PHASE
+// =========================================================
+function goToBetting(){
+  document.getElementById('odds-phase').classList.remove('active');
+  document.getElementById('betting-phase').classList.add('active');
+  renderOddsRef();
+  renderBetTypesInfo();
+  if(bettors.length===0) addBettor();
+  else renderBettors();
+}
+function renderOddsRef(){
+  const sorted=[...horses.map((h,i)=>({i,h,o:horseOdds[i]}))].sort((a,b)=>a.o-b.o);
+  document.getElementById('odds-ref').innerHTML=
+    `<div style="font-size:9px;letter-spacing:2px;color:rgba(245,234,214,.3);margin-bottom:8px;">MORNING LINE</div>`+
+    sorted.map(s=>`<div class="odds-row">
+      <div class="odds-num">${s.i+1}</div>
+      <div class="odds-name" style="font-size:13px;">${s.h.name}</div>
+      ${oddsTag(s.o)}
+      <div class="odds-val ${oddsClass(s.o)}" style="font-size:15px;">${oddsDisplay(s.o)}</div>
+    </div>`).join('');
+}
+function renderBetTypesInfo(){
+  document.getElementById('bet-types-info').innerHTML=
+    Object.entries(BET_TYPES).filter(([k])=>horses.length>=BET_TYPES[k].picks)
+    .map(([k,v])=>`<b>${v.label} (${v.picks} pick${v.picks>1?'s':''}):</b> ${v.desc}<br>`).join('');
+}
+function addBettor(){bettors.push({name:'',betType:'WIN',picks:[],stake:10});renderBettors();}
+function removeBettor(i){bettors.splice(i,1);renderBettors();}
+function setBetType(bi,type){bettors[bi].betType=type;bettors[bi].picks=[];renderBettors();}
+function togglePick(bi,hi){
+  const b=bettors[bi];const max=BET_TYPES[b.betType].picks;
+  const idx=b.picks.indexOf(hi);
+  if(idx>=0) b.picks.splice(idx,1);
+  else{ if(b.picks.length<max) b.picks.push(hi); else{ b.picks.shift();b.picks.push(hi); } }
+  renderBettors();
+}
+function renderBettors(){
+  const el=document.getElementById('bettors-container');el.innerHTML='';
+  bettors.forEach((b,bi)=>{
+    const bt=BET_TYPES[b.betType];
+    const valid=b.picks.length===bt.picks;
+    const payout=valid?calcPayout(b.betType,b.picks,b.stake):0;
+    const chipColors=['chip-1','chip-2','chip-3','chip-4'];
+    const card=document.createElement('div');card.className='bettor-card';
+    card.innerHTML=`
+      <div class="bettor-hdr">
+        <span class="lbl">BETTOR ${bi+1}</span>
+        <input type="text" placeholder="Name..." value="${b.name}" maxlength="16"
+          oninput="bettors[${bi}].name=this.value;" style="flex:1;max-width:170px;" />
+        <span style="font-size:11px;color:rgba(245,234,214,.38);margin-left:8px;">$</span>
+        <input type="number" value="${b.stake}" min="1" max="99999" style="width:72px;font-size:14px;"
+          oninput="bettors[${bi}].stake=Math.max(1,parseInt(this.value)||1);renderBettors();" />
+        <button class="btn btn-outline btn-sm" style="margin-left:auto;" onclick="removeBettor(${bi})">✕</button>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
+        <span class="lbl" style="padding-top:5px;">BET TYPE</span>
+        <div class="type-grid">
+          ${Object.entries(BET_TYPES).filter(([k])=>horses.length>=BET_TYPES[k].picks).map(([k,v])=>
+            `<button class="type-btn ${b.betType===k?'active':''}" onclick="setBetType(${bi},'${k}')">${v.label}</button>`
+          ).join('')}
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <span class="lbl" style="padding-top:4px;">${bt.picks>1?`PICK ${bt.picks} (in order)`:'PICK HORSE'}</span>
+        <div class="picks-row">
+          ${horses.map((h,hi)=>{
+            const pos=b.picks.indexOf(hi);
+            const cc=pos>=0?chipColors[pos]:'';
+            const posLbl=pos>=0?` <b style="font-size:9px;opacity:.8">[${pos+1}${['st','nd','rd','th'][pos]||'th'}]</b>`:'';
+            return `<span class="horse-chip ${cc}" onclick="togglePick(${bi},${hi})">
+              <span style="opacity:.5;font-size:10px;">${hi+1}</span> ${h.name}${posLbl}
+              <span class="${oddsClass(horseOdds[hi])}" style="font-size:10px;margin-left:2px;">${oddsDisplay(horseOdds[hi])}</span>
+            </span>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="bet-info">${bt.desc}${!valid?` <span style="color:#e74c3c;">— Select ${bt.picks} horse${bt.picks>1?'s in order':''}.</span>`:''}</div>
+      ${valid?`<div class="payout-prev">💵 Potential return: $${payout} &nbsp;(profit: $${(payout-b.stake).toFixed(2)})</div>`:''}
+    `;
+    el.appendChild(card);
+  });
+}
+
+// =========================================================
+// TRACK
+// =========================================================
+const EMOJIS=['🐎','🐴','🏇','🐎','🐴','🏇','🐎','🐴','🐎','🐴'];
+const LCOLS=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#e91e63','#00bcd4','#8bc34a'];
+function buildTrack(){
+  const inner=document.getElementById('track-inner');
+  inner.querySelectorAll('.lane').forEach(l=>l.remove());
+  horses.forEach((h,i)=>{
+    const lane=document.createElement('div');lane.className='lane';lane.id=`lane-${i}`;
+    const runner=document.createElement('div');runner.className='horse-runner';runner.id=`runner-${i}`;
+    runner.innerHTML=`${EMOJIS[i%EMOJIS.length]}<span class="hlbl" style="background:${LCOLS[i%LCOLS.length]}99;">#${i+1} ${h.name} <span style="opacity:.75">${oddsDisplay(horseOdds[i])}</span></span>`;
+    runner.style.left='4px';
+    const eb=document.createElement('div');eb.className='energy-bar';eb.id=`energy-${i}`;
+    eb.style.cssText=`left:4px;width:40px;background:linear-gradient(90deg,#2ecc71,#f1c40f);`;
+    lane.appendChild(runner);lane.appendChild(eb);inner.appendChild(lane);
+  });
+}
+
+// =========================================================
+// RACE ENGINE
+// =========================================================
+function startRace(){
+  document.getElementById('betting-phase').classList.remove('active');
+  document.getElementById('race-phase').classList.add('active');
+  buildTrack();countdown();
+}
+function countdown(){
+  const ov=document.getElementById('start-overlay');ov.style.display='flex';
+  let c=3;ov.innerHTML=`<div class="cd-num">${c}</div><div class="cd-txt">GET READY</div>`;
+  const iv=setInterval(()=>{
+    c--;
+    if(c>0) ov.innerHTML=`<div class="cd-num">${c}</div><div class="cd-txt">GET READY</div>`;
+    else{ov.innerHTML=`<div class="cd-num" style="color:#2ecc71;font-size:62px;">GO!</div>`;
+      clearInterval(iv);setTimeout(()=>{ov.style.display='none';launchRace();},600);}
+  },900);
+}
+const COMM=[
+  "And they're off! The gates fly open!",
+  "What a furious start out of the gate!",
+  "The crowd is on their feet!",
+  "Neck and neck in the early going!",
+  "A dramatic surge from the inside!",
+  "The pace is absolutely blistering!",
+  "Incredible speed around the far turn!",
+  "The roar of the crowd is deafening!",
+  "This is breathtaking racing, folks!",
+  "A dramatic change at the front!",
+  "They're flying down the backstretch!",
+  "Extraordinary performance on display!",
+  "It's anybody's race — nothing decided!",
+  "The favorite is being pushed hard!",
+  "The longshot is making a bold move!",
+  "Down the final stretch they come!",
+  "Three horses nearly in a dead heat!",
+  "An upset could be in the making!",
+  "The crowd cannot believe what they're seeing!",
+  "It's the moment of truth — final furlong!",
+];
+function launchRace(){
+  racePositions=horses.map(()=>0);raceFinished=[];
+  const horseDNA=horses.map((_,i)=>{
+    const o=horseOdds[i];
+    // Favorites get modest speed boost, longshots get bigger burst potential — but heavy noise keeps it random
+    const oddsBoost=1/(1+Math.log(o+1)*0.18);
+    return{
+      baseSpeed:(0.50+Math.random()*0.40)*(0.83+oddsBoost*0.34),
+      burstChance:0.007+Math.random()*0.017+(o>15?0.007:0),
+      burstMag:1.5+Math.random()*3.0,
+      fatigueFactor:0.90+Math.random()*0.09,
+      recoveryRate:0.010+Math.random()*0.025,
+      stumbleChance:0.003+Math.random()*0.006,
+      currentSpeed:0,fatigue:0,bursting:false,burstFrames:0
+    };
+  });
+  const tw=document.getElementById('track-inner').offsetWidth;
+  const finishPx=tw-82;
+  raceStartTime=performance.now();
+  let lastComm=0,commIdx=0;
+  document.getElementById('hud-status').textContent='RACING';
+  function frame(now){
+    const elapsed=now-raceStartTime;
+    const t=Math.min(elapsed/RACE_DURATION,1);
+    document.getElementById('hud-time').textContent=(elapsed/1000).toFixed(1)+'s';
+    if(now-lastComm>2500+Math.random()*1500){
+      lastComm=now;
+      const alive=racePositions.map((p,i)=>raceFinished.includes(i)?-1:p);
+      const l1=alive.indexOf(Math.max(...alive));
+      const a2=[...alive];a2[l1]=-1;const l2=a2.indexOf(Math.max(...a2));
+      const a3=[...a2];a3[l2]=-1;const l3=a3.indexOf(Math.max(...a3));
+      document.getElementById('commentary').textContent=`🎙️ ${COMM[commIdx%COMM.length]} ${horses[l1].name} in front!`;
+      document.getElementById('hud-first').textContent=`#${l1+1}`;
+      if(l2>=0) document.getElementById('hud-second').textContent=`#${l2+1}`;
+      if(l3>=0) document.getElementById('hud-third').textContent=`#${l3+1}`;
+      commIdx++;
+    }
+    horses.forEach((_,i)=>{
+      if(raceFinished.includes(i))return;
+      const d=horseDNA[i];
+      if(!d.bursting&&Math.random()<d.burstChance){d.bursting=true;d.burstFrames=12+Math.floor(Math.random()*28);}
+      if(Math.random()<d.stumbleChance) d.currentSpeed*=0.35;
+      let tgt=d.baseSpeed;
+      if(d.bursting){tgt=d.baseSpeed*d.burstMag;d.burstFrames--;if(d.burstFrames<=0)d.bursting=false;}
+      d.fatigue+=d.currentSpeed*0.0014;
+      if(t>0.70&&Math.random()<0.035) d.fatigue*=0.55; // second wind
+      tgt*=Math.max(0.36,1-d.fatigue*d.fatigueFactor+d.fatigue*d.recoveryRate);
+      d.currentSpeed+=(tgt-d.currentSpeed)*0.11;d.currentSpeed=Math.max(0,d.currentSpeed);
+      racePositions[i]+=d.currentSpeed*(tw/1500);
+      if(racePositions[i]>=finishPx&&!raceFinished.includes(i)){racePositions[i]=finishPx;raceFinished.push(i);}
+      const run=document.getElementById(`runner-${i}`);
+      if(run) run.style.left=Math.max(4,racePositions[i])+'px';
+      const eb=document.getElementById(`energy-${i}`);
+      if(eb){const ep=Math.max(10,100-d.fatigue*200);
+        eb.style.width=ep+'px';eb.style.left=Math.max(4,racePositions[i])+'px';
+        eb.style.background=ep>50?'linear-gradient(90deg,#2ecc71,#f1c40f)':'linear-gradient(90deg,#e74c3c,#f39c12)';}
+    });
+    if(raceFinished.length===horses.length){endRace();return;}
+    if(elapsed>33000){horses.forEach((_,i)=>{if(!raceFinished.includes(i))raceFinished.push(i);});endRace();return;}
+    raceAnimFrame=requestAnimationFrame(frame);
+  }
+  raceAnimFrame=requestAnimationFrame(frame);
+}
+function endRace(){
+  document.getElementById('hud-status').textContent='FINISHED';
+  document.getElementById('commentary').textContent=`🏁 OFFICIAL! ${horses[raceFinished[0]].name} wins the Grand Stakes! An unforgettable race!`;
+  document.getElementById('hud-first').textContent=`#${raceFinished[0]+1}`;
+  setTimeout(showResults,2200);
+}
+
+// =========================================================
+// RESULTS
+// =========================================================
+function showResults(){
+  document.getElementById('race-phase').classList.remove('active');
+  document.getElementById('results-phase').classList.add('active');
+  document.getElementById('winner-name').textContent=horses[raceFinished[0]].name;
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('podium-list').innerHTML=raceFinished.map((hi,p)=>`
+    <li class="podium-item">
+      <span class="place-medal">${medals[p]||`${p+1}.`}</span>
+      <span class="place-horse">#${hi+1} ${horses[hi].name}</span>
+      <span class="place-odds ${oddsClass(horseOdds[hi])}">${oddsDisplay(horseOdds[hi])}</span>
+      <span class="place-gap">${p===0?'WINNER':`+${(p*(0.22+Math.random()*0.65)).toFixed(2)}s`}</span>
+    </li>`).join('');
+
+  const el=document.getElementById('bets-results');
+  const validB=bettors.filter(b=>b.picks.length===BET_TYPES[b.betType].picks);
+  if(validB.length===0){ el.innerHTML='<div style="color:rgba(245,234,214,.3);font-size:13px;text-align:center;">No bets were placed.</div>'; launchConfetti(); return; }
+
+  let html='<div style="font-size:9px;letter-spacing:2px;color:rgba(245,234,214,.35);margin-bottom:10px;">WAGERING RESULTS</div>';
+  let wagered=0,returned=0;
+  validB.forEach(b=>{
+    const won=checkWin(b.betType,b.picks,raceFinished);
+    const payout=won?calcPayout(b.betType,b.picks,b.stake):0;
+    wagered+=b.stake;returned+=payout;
+    const name=b.name||'Anonymous';
+    const bt=BET_TYPES[b.betType];
+    const posLabels=['1st','2nd','3rd','4th'];
+    const pickStr=b.picks.map((hi,pos)=>`<b>#${hi+1} ${horses[hi].name}</b>${bt.picks>1?` (${posLabels[pos]})`:''}`).join(' → ');
+    html+=`<div class="bet-result-row">
+      <div>
+        <div>${name} — <span style="color:var(--gold);font-size:11px;letter-spacing:1px;">${bt.label}</span>: ${pickStr}</div>
+        <div class="bet-det">Stake: $${b.stake} · Potential: $${calcPayout(b.betType,b.picks,b.stake)}</div>
+      </div>
+      <div class="${won?'bet-win':'bet-lose'}">${won?`🎉 +$${(payout-b.stake).toFixed(2)}`:`✗ -$${b.stake}`}</div>
+    </div>`;
+  });
+  const net=returned-wagered;
+  html+=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(201,168,76,.2);
+    display:flex;justify-content:space-between;font-size:12px;flex-wrap:wrap;gap:6px;">
+    <span style="color:rgba(245,234,214,.45);">Total wagered: <b style="color:var(--cream);">$${wagered}</b></span>
+    <span style="color:rgba(245,234,214,.45);">Total returned: <b style="color:var(--cream);">$${returned.toFixed(2)}</b></span>
+    <span class="${net>=0?'bet-win':'bet-lose'}" style="font-size:14px;">Net: ${net>=0?'+':''}$${net.toFixed(2)}</span>
+  </div>`;
+  el.innerHTML=html;
+  launchConfetti();
+}
+function launchConfetti(){
+  const cols=['#c9a84c','#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#fff'];
+  for(let i=0;i<80;i++) setTimeout(()=>{
+    const c=document.createElement('div');c.className='confetti-piece';
+    c.style.cssText=`left:${Math.random()*100}vw;background:${cols[Math.floor(Math.random()*cols.length)]};
+      width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
+      animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s;
+      transform:rotate(${Math.random()*360}deg);border-radius:${Math.random()>.5?'50%':'2px'};`;
+    document.body.appendChild(c);setTimeout(()=>c.remove(),4000);
+  },i*30);
+}
+
+// =========================================================
+// RESET
+// =========================================================
+function resetGame(){
+  if(raceAnimFrame)cancelAnimationFrame(raceAnimFrame);
+  racePositions=[];raceFinished=[];bettors=[];
+  document.getElementById('results-phase').classList.remove('active');
+  document.getElementById('setup-phase').classList.add('active');
+  ['hud-time','hud-first','hud-second','hud-third'].forEach((id,i)=>{
+    document.getElementById(id).textContent=i===0?'0.0s':'—';
+  });
+  document.getElementById('hud-status').textContent='READY';
+  document.getElementById('commentary').textContent='🎙️ Welcome to the Grand Stakes! The horses are preparing at the gate...';
+  const ov=document.getElementById('start-overlay');
+  ov.style.display='flex';ov.innerHTML='<div class="cd-txt">LOADING GATE...</div>';
+}
+</script>
+</body>
+</html>
